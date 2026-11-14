@@ -1,0 +1,24 @@
+[project]
+name = "dive-ingestion-engine"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Your Name",email = "you@example.com"}
+]
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi (>=0.163.0,<0.164.0)",
+    "pydantic (>=2.14.3,<3.0.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[dependency-groups]
+dev = [
+    "pytest (>=9.2.0,<10.0.0)",
+    "mypy (>=2.4.1,<3.0.0)",
+    "ruff (>=0.17.5,<0.18.0)"
+]
