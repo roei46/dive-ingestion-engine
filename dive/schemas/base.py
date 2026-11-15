@@ -17,7 +17,7 @@ class EventModel(BaseModel):
 
 
 def parse_event(raw: dict[str, Any]) -> EventModel:
-    model = _REGISTRY.get(raw.get("schema_ver"))
+    model = _REGISTRY.get(raw.get("schema_ver", ""))
     if model is None:
         raise ValueError(f"unknown schema_ver: {raw.get('schema_ver')}")
     
