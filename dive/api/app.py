@@ -8,7 +8,18 @@ from dive.pipeline.runner import jobs, run_file
 app = FastAPI()
 
 
-@app.post("/v1/ingest", status_code=202)
+@app.post(
+    "/v1/ingest",
+    status_code=202,
+    summary="Upload an NDJSON file for ingestion",
+    description=(
+        "Accepts an NDJSON file (one JSON event per line, schema v1 or v2) as a "
+        "multipart upload. The upload is copied to a temporary file in 1 MB chunks, "
+        "so it is never held in memory as a whole. Returns 202 with a `job_id` "
+        "right away; processing runs in the background. Poll "
+        "`GET /v1/jobs/{job_id}` for the result."
+    ),
+)
 async def ingest_file(
     file: UploadFile, background_task: BackgroundTasks
 ) -> dict[str, str]:
@@ -26,7 +37,15 @@ async def ingest_file(
     return result
 
 
-@app.get("/v1/jobs/{job_id}")
+@app.get(
+    "/v1/jobs/{job_id}",
+    summary="Get a job's result",
+    description=(
+        "Returns the record counts for a finished job: valid events per schema "
+        "version (`v1`, `v2`) and the number of records sent to the DLQ (`dlq`). "
+        "Returns 404 if the job does not exist or has not finished yet."
+    ),
+)
 def get_job(job_id: str) -> dict[str, int]:
     job = jobs.get(job_id)
 
