@@ -1,7 +1,3 @@
-
-
-
-
 from dataclasses import dataclass
 
 
@@ -12,7 +8,6 @@ class DeadLetter:
 
 
 class DeadLetterQueue:
-
     def __init__(self) -> None:
         self.dead_letters: list[DeadLetter] = []
 

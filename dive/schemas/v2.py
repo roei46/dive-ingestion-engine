@@ -14,13 +14,16 @@ class Carrier(BaseModel):
     id: str
     tier: Tier
 
+
 class Value(BaseModel):
     amount: float
     currency: Currency
 
+
 class Route(BaseModel):
     from_: str = Field(alias="from")
     to: str
+
 
 class ShipmentEventV2(EventModel):
     schema_ver: Literal["v2"] = "v2"
