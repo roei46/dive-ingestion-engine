@@ -34,3 +34,16 @@ def validate(
         except (ValueError, ValidationError) as error:
             dlq.add(raw=json.dumps(raw), error=str(error))
             continue
+
+
+def batcher(size: int, events: Iterator[EventModel]) -> Iterator[list[EventModel]]:
+    batch: list[EventModel] = []
+
+    for event in events:
+        batch.append(event)
+        if size == len(batch):
+            yield batch
+            batch = []
+
+    if batch:
+        yield batch

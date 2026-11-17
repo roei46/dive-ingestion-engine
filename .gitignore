@@ -1,0 +1,17 @@
+# Virtual environment (Poetry)
+.venv/
+
+# macOS
+.DS_Store
+
+# Secrets
+.env
+
+# Generated sample data (can be ~1 GB)
+data/
+
+# Python and tool caches
+__pycache__/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/

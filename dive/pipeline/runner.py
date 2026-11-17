@@ -1,7 +1,8 @@
 from dive.pipeline.dlq import DeadLetterQueue
-from dive.pipeline.pipeline import parse_json, read_lines, validate
+from dive.pipeline.pipeline import batcher, parse_json, read_lines, validate
 
 jobs: dict[str, dict[str, int]] = {}
+
 
 def run_file(path: str, job_id: str) -> dict[str, int]:
     dlq = DeadLetterQueue()
@@ -10,9 +11,11 @@ def run_file(path: str, job_id: str) -> dict[str, int]:
     lines = read_lines(path=path)
     raw = parse_json(dlq=dlq, lines=lines)
     events = validate(dlq=dlq, dicts=raw)
+    batches = batcher(size=500, events=events)
 
-    for event in events:
-        counts[event.version] = counts.get(event.version, 0) + 1
+    for batch in batches:
+        for event in batch:
+            counts[event.version] = counts.get(event.version, 0) + 1
 
     counts["dlq"] = len(dlq.dead_letters)
     jobs[job_id] = counts
