@@ -1,3 +1,4 @@
+import sqlite3
 from dataclasses import dataclass
 
 
@@ -8,10 +9,16 @@ class DeadLetter:
 
 
 class DeadLetterQueue:
-    def __init__(self) -> None:
-        self.dead_letters: list[DeadLetter] = []
+    def __init__(self, connection: sqlite3.Connection, job_id: str) -> None:
+        self.count = 0
+        self.conn = connection
+        self.job_id = job_id
 
     def add(self, raw: str, error: str) -> None:
-        item = DeadLetter(raw=raw, error=error)
+        self.conn.execute(
+                    "INSERT INTO dead_letters (job_id, raw, error) VALUES (?, ?, ?) ",
+                    (self.job_id, raw, error),
+                )
+        
+        self.count += 1
 
-        self.dead_letters.append(item)

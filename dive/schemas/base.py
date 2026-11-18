@@ -8,6 +8,7 @@ _REGISTRY: dict[str, type["EventModel"]] = {}
 class EventModel(BaseModel):
     model_config = ConfigDict(extra="ignore")
     version: ClassVar[str]
+    shipment_id: str
 
     def __init_subclass__(cls, **kwargs: Any) -> None:
         super().__init_subclass__(**kwargs)
