@@ -16,9 +16,8 @@ class DeadLetterQueue:
 
     def add(self, raw: str, error: str) -> None:
         self.conn.execute(
-                    "INSERT INTO dead_letters (job_id, raw, error) VALUES (?, ?, ?) ",
-                    (self.job_id, raw, error),
-                )
-        
-        self.count += 1
+            "INSERT INTO dead_letters (job_id, raw, error) VALUES (?, ?, ?) ",
+            (self.job_id, raw, error),
+        )
 
+        self.count += 1

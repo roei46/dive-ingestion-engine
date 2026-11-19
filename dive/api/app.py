@@ -65,12 +65,16 @@ class DeadLetterPage(BaseModel):
                         "required": ["file"],
                     }
                 },
-                "application/x-ndjson": {"schema": {"type": "string", "format": "binary"}},
+                "application/x-ndjson": {
+                    "schema": {"type": "string", "format": "binary"}
+                },
             },
         }
     },
 )
-async def ingest_file(request: Request, background_task: BackgroundTasks) -> dict[str, str]:
+async def ingest_file(
+    request: Request, background_task: BackgroundTasks
+) -> dict[str, str]:
     job_id = str(uuid.uuid4())
     content_type = request.headers.get("content-type", "")
 

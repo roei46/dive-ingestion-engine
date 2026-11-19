@@ -30,14 +30,14 @@ def connection(path: str) -> sqlite3.Connection:
     )
 
     conn.execute(
-            """
+        """
               CREATE TABLE IF NOT EXISTS dead_letters (
               job_id TEXT NOT NULL,
               raw TEXT NOT NULL,
               error TEXT NOT NULL
               )
              """
-        )
+    )
 
     conn.execute(
         """
@@ -47,6 +47,17 @@ def connection(path: str) -> sqlite3.Connection:
         )
         """
     )
+
+    conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS batch_signatures (
+                job_id TEXT NOT NULL,
+                end_cursor INTEGER NOT NULL,
+                signature TEXT NOT NULL,
+                PRIMARY KEY (job_id, end_cursor) 
+            )
+            """
+        )
 
     conn.commit()
     return conn
@@ -79,10 +90,11 @@ def set_cursor(connection: sqlite3.Connection, job_id: str, gruop_number: int) -
         (job_id, gruop_number),
     )
 
+
 def get_cursor(connection: sqlite3.Connection, job_id: str) -> int:
     item = connection.execute(
-        "SELECT cursor FROM jobs WHERE job_id = ? ",
-        (job_id,)).fetchone()
+        "SELECT cursor FROM jobs WHERE job_id = ? ", (job_id,)
+    ).fetchone()
 
     if item is None:
         return 0
@@ -101,7 +113,9 @@ def save_job_file(connection: sqlite3.Connection, job_id: str, path: str) -> Non
 
 
 def get_job_file(connection: sqlite3.Connection, job_id: str) -> str | None:
-    row = connection.execute("SELECT path FROM job_files WHERE job_id = ?", (job_id,)).fetchone()
+    row = connection.execute(
+        "SELECT path FROM job_files WHERE job_id = ?", (job_id,)
+    ).fetchone()
     if row is None:
         return None
     path: str = row[0]
@@ -124,3 +138,11 @@ def list_dead_letters(
         (job_id, limit, offset),
     ).fetchall()
     return [(str(raw), str(error)) for raw, error in rows]
+
+def save_signature(connection: sqlite3.Connection, job_id: str, end_cursor: int, signature: str) -> None:
+      connection.execute(
+            "INSERT INTO batch_signatures (job_id, end_cursor, signature) VALUES (?, ?, ?) "
+                    "ON CONFLICT(job_id, end_cursor) DO UPDATE SET signature = excluded.signature",
+                    (job_id, end_cursor, signature),
+        )
+      

@@ -18,7 +18,6 @@ class EventModel(BaseModel):
 
     def currency_code(self) -> str:
         raise NotImplementedError
-        
 
 
 def parse_event(raw: dict[str, Any]) -> EventModel:
@@ -27,4 +26,3 @@ def parse_event(raw: dict[str, Any]) -> EventModel:
         raise ValueError(f"unknown schema_ver: {raw.get('schema_ver')}")
 
     return model.model_validate(raw)
-

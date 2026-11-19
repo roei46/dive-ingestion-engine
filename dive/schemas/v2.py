@@ -35,4 +35,4 @@ class ShipmentEventV2(EventModel):
     carrier: Carrier
 
     def currency_code(self) -> str:
-            return self.value.currency
+        return self.value.currency
