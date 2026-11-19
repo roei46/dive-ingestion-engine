@@ -18,3 +18,6 @@ class ShipmentEventV1(EventModel):
     amount: float
     currency: Currency
     carrier: str
+
+    def currency_code(self) -> str:
+        return self.currency

@@ -33,3 +33,6 @@ class ShipmentEventV2(EventModel):
     route: Route
     value: Value
     carrier: Carrier
+
+    def currency_code(self) -> str:
+            return self.value.currency

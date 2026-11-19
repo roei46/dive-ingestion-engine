@@ -3,6 +3,7 @@ from itertools import islice
 
 from dive.persistence.db import connection, get_cursor, save, set_cursor, transaction
 from dive.pipeline.dlq import DeadLetterQueue
+from dive.pipeline.enrich import enrich
 from dive.pipeline.pipeline import batcher, parse_json, read_lines, validate
 
 jobs: dict[str, dict[str, int]] = {}
@@ -19,7 +20,9 @@ def run_file(path: str, job_id: str) -> dict[str, int]:
     raw = parse_json(dlq=dlq, lines=lines)
     events = validate(dlq=dlq, dicts=raw)
     sliced_events = islice(events, cursor, None)
-    batches = batcher(size=500, events=sliced_events)
+    enriched_events = enrich(events=sliced_events)
+
+    batches = batcher(size=500, events=enriched_events)
 
     batch = next(batches, None)
     while batch is not None:
