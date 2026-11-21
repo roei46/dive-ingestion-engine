@@ -21,6 +21,7 @@ from dive.pipeline.pipeline import batcher, parse_json, read_lines, validate
 from dive.pipeline.signing import sign_batch
 from dive.schemas.base import EventModel
 
+MAX_IN_FLIGHT = 4
 jobs: dict[str, dict[str, int]] = {}
 load_dotenv()
 key = os.environ["SIGNING_KEY"].encode()
