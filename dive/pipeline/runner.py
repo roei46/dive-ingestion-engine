@@ -48,9 +48,10 @@ def run_file(path: str, job_id: str) -> dict[str, int]:
         while batch is not None:
             start = time.perf_counter()
             saved += len(batch)
-            records: bytes = json.dumps(
-               [event.model_dump(mode="json") for event in batch]
-            ).encode("utf-8")
+            records: list[bytes] = [
+                json.dumps(event.model_dump(mode="json"), sort_keys=True).encode("utf-8")
+                for event in batch
+            ]
             future = pool.submit(sign_batch, records, key)
             in_flight.append((batch, saved, future))
             if len(in_flight) == MAX_IN_FLIGHT:
