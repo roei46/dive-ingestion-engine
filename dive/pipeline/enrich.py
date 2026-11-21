@@ -8,6 +8,7 @@ from dive.schemas.base import EventModel
 
 MAX_THREADS = 10
 
+
 def fetch_rate(base: str, quote: str) -> float:
 
     response = httpx.get(
@@ -21,12 +22,11 @@ def fetch_rate(base: str, quote: str) -> float:
 
 def enrich(events: Iterator[EventModel]) -> Iterator[EventModel]:
     with ThreadPoolExecutor(max_workers=MAX_THREADS) as pool:
-         while True:
+        while True:
             chunk = list(islice(events, MAX_THREADS))
             if not chunk:
                 return
             yield from pool.map(enrich_one, chunk)
-
 
 
 def enrich_one(event: EventModel) -> EventModel:

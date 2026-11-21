@@ -1,24 +1,15 @@
-
-
 import hmac
-import json
 import zlib
-from typing import Any
 
 
-def canonical_bytes(record: dict[str, Any]) -> bytes:
-    
-    text = json.dumps(record, sort_keys=True)  
-    raw = text.encode()                     
-    packed = zlib.compress(raw)
+def canonical_bytes(record: bytes) -> bytes:
+    packed = zlib.compress(record)
 
     return packed
 
 
-def sign_batch(records: list[dict[str, Any]], key: bytes) -> str:
-    h = hmac.new(key=key, digestmod="sha256")  
-
-    for record in records:
-        h.update(canonical_bytes(record))
+def sign_batch(records: bytes, key: bytes) -> str:
+    h = hmac.new(key=key, digestmod="sha256")
+    h.update(canonical_bytes(records))
 
     return h.hexdigest()

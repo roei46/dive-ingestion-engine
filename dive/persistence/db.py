@@ -49,7 +49,7 @@ def connection(path: str) -> sqlite3.Connection:
     )
 
     conn.execute(
-            """
+        """
             CREATE TABLE IF NOT EXISTS batch_signatures (
                 job_id TEXT NOT NULL,
                 end_cursor INTEGER NOT NULL,
@@ -57,7 +57,7 @@ def connection(path: str) -> sqlite3.Connection:
                 PRIMARY KEY (job_id, end_cursor) 
             )
             """
-        )
+    )
 
     conn.commit()
     return conn
@@ -139,10 +139,12 @@ def list_dead_letters(
     ).fetchall()
     return [(str(raw), str(error)) for raw, error in rows]
 
-def save_signature(connection: sqlite3.Connection, job_id: str, end_cursor: int, signature: str) -> None:
-      connection.execute(
-            "INSERT INTO batch_signatures (job_id, end_cursor, signature) VALUES (?, ?, ?) "
-                    "ON CONFLICT(job_id, end_cursor) DO UPDATE SET signature = excluded.signature",
-                    (job_id, end_cursor, signature),
-        )
-      
+
+def save_signature(
+    connection: sqlite3.Connection, job_id: str, end_cursor: int, signature: str
+) -> None:
+    connection.execute(
+        "INSERT INTO batch_signatures (job_id, end_cursor, signature) VALUES (?, ?, ?) "
+        "ON CONFLICT(job_id, end_cursor) DO UPDATE SET signature = excluded.signature",
+        (job_id, end_cursor, signature),
+    )
