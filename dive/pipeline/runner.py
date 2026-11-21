@@ -1,5 +1,6 @@
 import json
 import os
+import resource
 import sqlite3
 import time
 from concurrent.futures import Future, ProcessPoolExecutor
@@ -42,7 +43,8 @@ def run_file(path: str, job_id: str) -> dict[str, int]:
     in_flight: list[tuple[list[EventModel], int, Future[str]]] = []
 
     batch = next(batches, None)
-    with ProcessPoolExecutor(max_workers=4) as pool:
+    with ProcessPoolExecutor(max_workers=MAX_IN_FLIGHT) as pool:
+        run_start = time.perf_counter()
         while batch is not None:
             start = time.perf_counter()
             saved += len(batch)
@@ -51,7 +53,7 @@ def run_file(path: str, job_id: str) -> dict[str, int]:
             ).encode("utf-8")
             future = pool.submit(sign_batch, records, key)
             in_flight.append((batch, saved, future))
-            if len(in_flight) == 4:
+            if len(in_flight) == MAX_IN_FLIGHT:
                 in_flight_oldest_item = in_flight.pop(0)
                 old_batch, old_cursor, old_future = in_flight_oldest_item
 
@@ -71,7 +73,10 @@ def run_file(path: str, job_id: str) -> dict[str, int]:
                 batch = batches.send(elapsed)
             except StopIteration:
                 batch = None
-
+            seconds = time.perf_counter() - run_start
+            rss_mb = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1_000_000
+            print(f"events={saved} rate={saved / seconds:.0f}/s rss={rss_mb:.0f}MB")
+    
     conn.commit()
     counts["dlq"] = dlq.count
     jobs[job_id] = counts
